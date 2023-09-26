@@ -1,0 +1,173 @@
+Project 1 -  Task Manager APi
+
+channel by - Coding Addict  ( John Smilga )
+
+Date - Sep 4 2023
+
+--------------------------------------------------------------------
+
+- Goal of this project 
+
+    - how set up and connect to the cloud database so effectively we will learn how to persist our data to the cloud
+    - also learn how to perform all the crud operation on our data which is fundamental to any application.
+
+    here we are not going to work on the front end here we will just work on the backend and public directory of these server the html and style to client.
+
+    for the convention we used the /api/ as here we can have the lot of other routes. 
+
+    and /api/v1 - this is version 1 that say what is routes
+
+    first we setup the structure like the route in the routes folder in the tasks.js and controller.js tasks.js the function with just return the send of all the router not actual logic and then task it working in the postman.
+
+    in the postman we are going to create the collection as we are goinng to use more route for this application it will good if all in the one place.  
+
+    collection name is task manager
+
+    here in the postman we can to get the rid of typing again and again we can store in the global  variable ..  by going right hand side the Environment quick look
+
+    here we are going to use the global but we can use the Environment variable as well here we are going name the variable the URL.
+
+    to access variable we can do like the {{URL}}
+
+    and test the route and save it in the more meaning ful name.
+
+
+    - Rest APi
+
+    All the routes that we have created till using the structure is  called the Rest API
+
+    here we are creating the httpss interface most and the front-end ones can interact with our data 
+
+    the rest is the most popular way to api design pattern and essentially it's a pattern that combiines http verbs route paths and our resources (data) , rest determines how the api looks like , it is pattern not a strictly enforced set of rules so nothing stops us from settting our api in the totally different manner, if we have used apis on our frontend apps we know that some of themm have totally different structure 
+
+    - GET               api/tasks               - Get all Tasks
+    - POST              api/tasks               - Create Task
+    - GET               api/tasks/:id           - Get Task
+    - PUT/PATCH         api/tasks/:id           - Update Task
+    - DELETE            api/tasks/:id           - Delete Task
+
+
+    - MongoDB Setup.
+
+        all the same setup her i create the prject nodeExpressProject and here in the collection we go with add my own data
+
+            store database and products collection
+
+        it is good explainaation of mongodb.
+
+        mongodb is the dynamic schema means it will have differnt structure for different document in the collection , it 
+
+        now just because we can , doesn't mean you should do and therefore we will use additional library mongoose which will setup structure for us.
+
+    - Mongoose 
+
+        there are many other package to do this but this one is very popular one.
+
+    - Connecting database
+
+        Server is listening on port 3000...
+        CONNECTED TO THE DATABASE
+
+        as we can say first the server is running then the connection is happening as it is connect.js but this should be better first we connect the database and then run the server then only the application will be good to do that we are going to modifiy the connect.js file and create a function
+
+    - creating schema and model folder.
+
+        why we need the schema as we know the task manager need the two value to store in the database that is task name and complete value ,, so we want to other additional field and that structure we are going to define here.
+
+        only the properties that we have defined in the schema is going to database other field that we have passed will skipp 
+
+        now we are going to validation as we can now send the empty properties to the database that is not good.
+
+        first we go with the shema that is required
+        trim that is remove the extra space from the starting and ending of the statement.
+
+        learn more about validation fromm the mongoose documentation.
+
+        here to handle the error of the mongoose  model validation we use the try catch but for all the route we use it but at the end of the project we will find a way to get rid of this way try catch same way.
+
+        and also here we can see json error message is quite log so we will see also a way to do  and send the exact message only.
+
+    - In the getTask route 
+
+        we have 2 error here first for the when we don't get the task at the passed id and second one for the any error haappen with mongodb like connection interrupted and id syntax error etc etc.
+
+    - Now our core functionality has completed now we make app more clear and effective task.
+
+    - Why we use the put and patch
+
+        both are used for updating the resources but the assumption is that when we use put, we are trying to replace the existing resources and patch is for partial update
+
+        we used the patch one but to under the we also going to create the put one 
+
+        to do put actually the way it do we need to pass additonal optional parameter to the it as mongoose do same for but to see how they are different we need to do.
+
+        now what haappen, remember the completed is default, if we remove it the it will remove onnly the that we pass , suppose if we pass the name only it will update that only and replace complete ... it will returnn the name, id only.
+
+
+    - Start the refactor our program.
+
+    first refactor of return response json that of the getAllTasks
+
+    whatever the return we used it will effect the frontend so take the suitable one for the both .
+    like here the last return in the getAllTasks it will return the data.tasks that we need to change in the frontend also,
+
+    so adivce ,stick in the one way that will uniform for all the application.
+
+    next to handle undefined route through custom route.
+
+    so to create that we go with middleware folder and not-found js.
+
+    - next worked on asynchronous wrapper all of controller  
+
+        we need this as we can see our all the route are using the try and catch like the redundancy so we can create the middleware to do that.
+
+        there are some of the npm package that can do for us.. 
+
+        to now the general idea of basic logic how they work we here build that but in the future we will use them in  the upcoming project.
+
+        create async.js in the middleware folder
+
+        learn this route to understand the follow of the logic here that implementated in the routes.
+
+
+        Let me clarify how the response is returned:
+
+        When you request the getAllTasks route, the asyncWrapper middleware is indeed invoked first, as it's the middleware associated with that route.
+
+        The asyncWrapper middleware returns an anonymous function (middleware function) that takes req, res, and next as parameters.
+
+        This anonymous function is immediately invoked by Express when a request is made to the getAllTasks route. Express automatically provides req, res, and next as arguments to this anonymous function.
+
+        Inside this anonymous function, there's a try...catch block, and it calls the callback function (your actual route handler logic) with req, res, and next as parameters.
+
+        In your specific case, the callback function is getAllTasks, which fetches tasks using await Task.find(). If this operation is successful, it sends a JSON response using res.status(200).json({ tasks });.
+
+        If an error occurs during the execution of await Task.find(), it will be caught by the catch block in the asyncWrapper middleware. In this case, the error is passed to the Express next function, which handles error propagation.
+
+        The key here is that the anonymous function returned by asyncWrapper is executed immediately when a request is made to the route. This is how the response is returned to the client. The await Task.find() operation inside your getAllTasks callback is asynchronous, so it will not block the execution of the route and allows other requests to be processed concurrently. If there are errors in this asynchronous operation, they will be caught by the asyncWrapper's catch block and handled accordingly.
+
+
+    - after this going to error handler.js middleware to handle the next(error)
+
+      we create the the errorHandler.js middleware
+
+    - After this we worked on the 404 response that we do in the controller by the custom extend javascript class.
+
+     new folder errors -> custom-error.js
+
+     NOTE.
+
+     -- this is the general setup we go more with the error-handling and validation in the future project.
+
+     - deployment as we are not going to deployment this project as we didn't implement the authentication and the security so it will headache if we do..
+
+     -  POrt number.
+
+     hard-coded value like 3000 is the decent solution for the local Environment , but it comes to deployment, in many deployment the host the platform where the project is hosted on , may want to independently set the post value to whatever makes sense to the platform because as we can image it needs to handle more than just one application at the time annd in order to make that possible when it comes to port value instead of hard coding to 3000 6000 or whatever we'll have to use the port variable that is avaiable in process.env instead setup or operator just in case it's undefined
+
+
+      so in the command line if we type the command llike PORT=6000 node app.js 
+
+      it will run on the port of 6000 instead of 3000 and we didn't define in the process.env.PORT also
+
+      that's it...........................
