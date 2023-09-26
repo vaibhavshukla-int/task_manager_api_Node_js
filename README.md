@@ -6,7 +6,7 @@ Welcome to Task Manager, a Node.js-based To-Do List application. This project is
 
 ### Features
 
-    * Create new tasks with a title, description, and due date.
+    * Create new tasks with task name.
     * Update existing tasks to mark them as completed or modify their details.
     * Retrieve a list of all tasks or a specific task by ID.
     * Delete tasks that are no longer needed.
